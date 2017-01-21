@@ -1,0 +1,7 @@
+---
+- name: Hello World
+  hosts: all
+  sudo: yes
+  tasks:
+    - name: Hello server
+      shell: date >> now.txt
