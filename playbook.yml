@@ -15,6 +15,18 @@
         - start nginx
       tags: web
 
+    - name: Installs python and pip
+      apt: pkg={{ item }} state=installed
+      with_items:
+        - python
+        - python-pip
+      tags: app
+
+    - name: Install tornado - python web server
+      pip:
+        name: tornado
+      tags: app
+
     - name: Install Postgresql
       apt: pkg={{ item }} state=installed
       register: postgresql_install
