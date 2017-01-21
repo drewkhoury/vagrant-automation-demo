@@ -3,9 +3,6 @@
   hosts: all
   sudo: yes
   tasks:
-    # - name: Hello server
-    #   shell: date >> now.txt
-
     - name: Installs nginx web server
       apt:
         pkg: nginx
@@ -38,6 +35,8 @@
       with_items:
         - python
         - python-pip
+        - libpq-dev
+        - python-dev
       tags: app
 
     - name: Install tornado and psycopg2
@@ -45,12 +44,6 @@
       with_items:
         - tornado
         - psycopg2
-      tags: app
-
-    - name: start tornado
-      sudo: yes
-      sudo_user: postgres
-      shell: nohup python /home/vagrant/webserver.py &
       tags: app
 
     - name: Install Postgresql
@@ -70,18 +63,10 @@
         state: present
       tags: db
 
-    # - name: Check if the table already exists in the DB
-    #   sudo: yes
-    #   sudo_user: postgres
-    #   shell: psql alvin_generator -c "SELECT tablename FROM pg_tables WHERE tablename = 'alvin';" | grep alvin | tr -d ' '
-    #   register: tablestatus
-    #   tags: db
-
     - name: Create a table
       sudo: yes
       sudo_user: postgres
       command: psql alvin_generator -c 'CREATE TABLE IF NOT EXISTS alvin (foo varchar(40));'
-      #when: tablestatus.stdout != 'alvin'
       tags: db
 
     - name: I guess we should put some data in it
@@ -96,11 +81,13 @@
       command: psql alvin_generator -c 'select * from alvin;'
       tags: db
 
+    - name: start tornado
+      sudo: yes
+      sudo_user: postgres
+      shell: nohup python /home/vagrant/webserver.py &
+      tags: app
+
   handlers:
     - name: start nginx
       service: name=nginx state=started
       tags: web
-    # - name: start tornado
-    #   command: nohup /home/vagrant/webserver.py &
-    #   tags: app
-
