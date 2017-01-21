@@ -5,3 +5,12 @@
   tasks:
     - name: Hello server
       shell: date >> now.txt
+
+    - name: Installs nginx web server
+      apt: pkg=nginx state=installed update_cache=true
+      notify:
+        - start nginx
+
+  handlers:
+    - name: start nginx
+      service: name=nginx state=started

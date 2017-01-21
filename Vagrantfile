@@ -7,6 +7,8 @@ Vagrant.configure("2") do |config|
 
     autodemodrew.vm.box = "hashicorp/precise64"
 
+	autodemodrew.vm.network :forwarded_port, guest: 80, host: 8080
+
     autodemodrew.vm.provision :ansible do |ansible|
       ansible.playbook = "playbook.yml"
       ansible.verbose  = true
