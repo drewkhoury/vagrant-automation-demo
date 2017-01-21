@@ -9,6 +9,10 @@ Vagrant.configure("2") do |config|
 
 	autodemodrew.vm.network :forwarded_port, guest: 80, host: 8080
 
+	autodemodrew.vm.provision "file", source: "files/tornado.conf", destination: "tornado.conf"
+	autodemodrew.vm.provision "file", source: "files/webserver.py", destination: "webserver.py"
+	autodemodrew.vm.provision "file", source: "files/dbconnection.py", destination: "dbconnection.py"
+
     autodemodrew.vm.provision :ansible do |ansible|
       ansible.playbook = "playbook.yml"
       ansible.verbose  = true

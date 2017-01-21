@@ -15,6 +15,24 @@
         - start nginx
       tags: web
 
+    - name: Move default nginx configs sites-available
+      command: mv /etc/nginx/sites-available/default /tmp/sites-available_default
+      notify:
+        - start nginx
+      tags: web
+
+    - name: Move default nginx configs sites-enabled
+      command: mv /etc/nginx/sites-enabled/default /tmp/sites-enabled_default
+      notify:
+        - start nginx
+      tags: web
+
+    - name: Move our config file into place
+      command: mv /home/vagrant/tornado.conf /etc/nginx/conf.d/tornado.conf
+      notify:
+        - start nginx
+      tags: web
+
     - name: Installs python and pip
       apt: pkg={{ item }} state=installed
       with_items:
@@ -25,6 +43,12 @@
     - name: Install tornado - python web server
       pip:
         name: tornado
+      # notify:
+      #   - start tornado
+      tags: app
+
+    - name: start tornado
+      shell: nohup python /home/vagrant/webserver.py &
       tags: app
 
     - name: Install Postgresql
@@ -73,4 +97,8 @@
   handlers:
     - name: start nginx
       service: name=nginx state=started
-  tags: web
+      tags: web
+    # - name: start tornado
+    #   command: nohup /home/vagrant/webserver.py &
+    #   tags: app
+
