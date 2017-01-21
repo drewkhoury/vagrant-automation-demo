@@ -15,16 +15,16 @@
         - start nginx
       tags: web
 
-    - name: Move default nginx configs sites-available
-      command: mv /etc/nginx/sites-available/default /tmp/sites-available_default
-      notify:
-        - start nginx
+    - name: remove /etc/nginx/sites-available/default
+      file:
+        path: /etc/nginx/sites-available/default
+        state: absent
       tags: web
 
-    - name: Move default nginx configs sites-enabled
-      command: mv /etc/nginx/sites-enabled/default /tmp/sites-enabled_default
-      notify:
-        - start nginx
+    - name: remove /etc/nginx/sites-enabled/default
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
       tags: web
 
     - name: Move our config file into place
@@ -40,14 +40,16 @@
         - python-pip
       tags: app
 
-    - name: Install tornado - python web server
-      pip:
-        name: tornado
-      # notify:
-      #   - start tornado
+    - name: Install tornado and psycopg2
+      pip: name={{ item }}
+      with_items:
+        - tornado
+        - psycopg2
       tags: app
 
     - name: start tornado
+      sudo: yes
+      sudo_user: postgres
       shell: nohup python /home/vagrant/webserver.py &
       tags: app
 
