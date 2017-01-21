@@ -3,14 +3,62 @@
   hosts: all
   sudo: yes
   tasks:
-    - name: Hello server
-      shell: date >> now.txt
+    # - name: Hello server
+    #   shell: date >> now.txt
 
     - name: Installs nginx web server
-      apt: pkg=nginx state=installed update_cache=true
+      apt:
+        pkg: nginx
+        state: installed
+        update_cache: true
       notify:
         - start nginx
+      tags: web
+
+    - name: Install Postgresql
+      apt: pkg={{ item }} state=installed
+      register: postgresql_install
+      with_items:
+        - postgresql
+        - postgresql-contrib
+        - python-psycopg2
+      tags: db
+
+    - name: Lets create a db
+      sudo: yes
+      sudo_user: postgres
+      postgresql_db:
+        name: alvin_generator
+        state: present
+      tags: db
+
+    # - name: Check if the table already exists in the DB
+    #   sudo: yes
+    #   sudo_user: postgres
+    #   shell: psql alvin_generator -c "SELECT tablename FROM pg_tables WHERE tablename = 'alvin';" | grep alvin | tr -d ' '
+    #   register: tablestatus
+    #   tags: db
+
+    - name: Create a table
+      sudo: yes
+      sudo_user: postgres
+      command: psql alvin_generator -c 'CREATE TABLE IF NOT EXISTS alvin (foo varchar(40));'
+      #when: tablestatus.stdout != 'alvin'
+      tags: db
+
+    - name: I guess we should put some data in it
+      sudo: yes
+      sudo_user: postgres
+      command: psql alvin_generator -c "INSERT INTO alvin VALUES ('bar');"
+      tags: db
+
+    - name: Lets see whats in the table
+      sudo: yes
+      sudo_user: postgres
+      command: psql alvin_generator -c 'select * from alvin;'
+      tags: db
 
   handlers:
     - name: start nginx
       service: name=nginx state=started
+  tags: web
