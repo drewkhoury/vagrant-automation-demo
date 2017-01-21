@@ -5,7 +5,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "autodemodrew" do |autodemodrew|
 
-    config.vm.box = "hashicorp/precise64"
+    autodemodrew.vm.box = "hashicorp/precise64"
 
   end
 
